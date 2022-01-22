@@ -65,6 +65,7 @@ import { parseNextUrl } from '../shared/lib/router/utils/parse-next-url'
 import isError, { getProperError } from '../lib/is-error'
 import { MIDDLEWARE_ROUTE } from '../lib/constants'
 import { addRequestMeta, getRequestMeta } from './request-meta'
+import { ImageConfigComplete, setImageConfigRuntime } from './image-config'
 
 const getCustomRouteMatcher = pathMatch(true)
 
@@ -347,6 +348,8 @@ export default abstract class Server {
       serverRuntimeConfig,
       publicRuntimeConfig,
     })
+
+    this.saveImageConfigRuntime(this.nextConfig.images)
 
     this.pagesManifest = this.getPagesManifest()
     this.middlewareManifest = this.getMiddlewareManifest()
@@ -1971,6 +1974,12 @@ export default abstract class Server {
 
   protected get _isLikeServerless(): boolean {
     return isTargetLikeServerless(this.nextConfig.target)
+  }
+
+  public saveImageConfigRuntime(
+    imageConfig: Partial<ImageConfigComplete>
+  ): void {
+    setImageConfigRuntime(imageConfig)
   }
 }
 
