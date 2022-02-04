@@ -7,7 +7,7 @@ import {
   VALID_LOADERS,
 } from '../server/image-config'
 import { useIntersection } from './use-intersection'
-import { RuntimeImageConfigContext } from '../shared/lib/runtime-image-config-context'
+import { ImageConfigContext } from '../shared/lib/image-config-context'
 
 const loadedImageURLs = new Set<string>()
 const allImgs = new Map<
@@ -121,7 +121,7 @@ let {
 } = (process.env.__NEXT_IMAGE_OPTS as any as ImageConfigComplete) ||
 imageConfigDefault
 
-function setRuntimeImageConfig(imagesConfig: ImageConfigComplete) {
+function setImageConfig(imagesConfig: ImageConfigComplete) {
   if (!imagesConfig || process.env.__NEXT_IMAGE_OPTS) return
 
   configDeviceSizes = imagesConfig.deviceSizes
@@ -401,7 +401,7 @@ export default function Image({
     isLazy = false
   }
 
-  setRuntimeImageConfig(useContext(RuntimeImageConfigContext))
+  setImageConfig(useContext(ImageConfigContext))
 
   if (process.env.NODE_ENV !== 'production') {
     if (!src) {

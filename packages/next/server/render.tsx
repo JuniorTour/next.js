@@ -63,7 +63,6 @@ import { DomainLocale } from './config'
 import RenderResult, { NodeWritablePiper } from './render-result'
 import isError from '../lib/is-error'
 import { readableStreamTee } from './web/utils'
-import { RuntimeImageConfigContext } from '../shared/lib/runtime-image-config-context'
 
 let Writable: typeof import('stream').Writable
 let Buffer: typeof import('buffer').Buffer
@@ -238,7 +237,6 @@ export type RenderOptsPartial = {
   serverComponents?: boolean
   customServer?: boolean
   crossOrigin?: string
-  images: string
 }
 
 export type RenderOpts = LoadComponentsReturnType & RenderOptsPartial
@@ -449,7 +447,6 @@ export async function renderToHTML(
     devOnlyCacheBusterQueryString,
     supportsDynamicHTML,
     concurrentFeatures,
-    images,
   } = renderOpts
 
   const isServerComponent = !!serverComponentManifest
@@ -721,11 +718,7 @@ export async function renderToHTML(
             value={(moduleName) => reactLoadableModules.push(moduleName)}
           >
             <StyleRegistry registry={jsxStyleRegistry}>
-              <RuntimeImageConfigContext.Provider
-                value={images ? JSON.parse(images) : null}
-              >
-                {children}
-              </RuntimeImageConfigContext.Provider>
+              {children}
             </StyleRegistry>
           </LoadableContext.Provider>
         </HeadManagerContext.Provider>
