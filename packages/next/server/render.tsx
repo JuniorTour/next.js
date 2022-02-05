@@ -234,7 +234,7 @@ export type RenderOptsPartial = {
   serverComponents?: boolean
   customServer?: boolean
   crossOrigin?: string
-  images: ImageConfigComplete
+  images: string
 }
 
 export type RenderOpts = LoadComponentsReturnType & RenderOptsPartial
@@ -717,7 +717,7 @@ export async function renderToHTML(
             value={(moduleName) => reactLoadableModules.push(moduleName)}
           >
             <StyleRegistry registry={jsxStyleRegistry}>
-              <ImageConfigContext.Provider value={images}>
+              <ImageConfigContext.Provider value={JSON.parse(images)}>
                 {children}
               </ImageConfigContext.Provider>
             </StyleRegistry>
