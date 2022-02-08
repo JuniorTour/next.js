@@ -58,6 +58,7 @@ import { MIDDLEWARE_ROUTE } from '../lib/constants'
 import { addRequestMeta, getRequestMeta } from './request-meta'
 import { createHeaderRoute, createRedirectRoute } from './server-route-utils'
 import { PrerenderManifest } from '../build'
+import { checkIsManualRevalidate } from '../server/api-utils'
 import { ImageConfigComplete } from './image-config'
 
 export type FindComponentsResult = {
@@ -1166,6 +1167,15 @@ export default abstract class Server {
       isPreviewMode = previewData !== false
     }
 
+    let isManualRevalidate = false
+
+    if (isSSG) {
+      isManualRevalidate = checkIsManualRevalidate(
+        req,
+        this.renderOpts.previewProps
+      )
+    }
+
     // Compute the iSSG cache key. We use the rewroteUrl since
     // pages with fallback: false are allowed to be rewritten to
     // and we need to look up the path by the rewritten path
@@ -1231,7 +1241,7 @@ export default abstract class Server {
 
     let ssgCacheKey =
       isPreviewMode || !isSSG || this.minimalMode || opts.supportsDynamicHTML
-        ? null // Preview mode bypasses the cache
+        ? null // Preview mode and manual revalidate bypasses the cache
         : `${locale ? `/${locale}` : ''}${
             (pathname === '/' || resolvedUrlPathname === '/') && locale
               ? ''
@@ -1357,7 +1367,7 @@ export default abstract class Server {
 
     const cacheEntry = await this.responseCache.get(
       ssgCacheKey,
-      async (hasResolved) => {
+      async (hasResolved, hadCache) => {
         const isProduction = !this.renderOpts.dev
         const isDynamicPathname = isDynamicRoute(pathname)
         const didRespond = hasResolved || res.sent
@@ -1370,6 +1380,12 @@ export default abstract class Server {
           fallbackMode === 'static' &&
           isBot(req.headers['user-agent'] || '')
         ) {
+          fallbackMode = 'blocking'
+        }
+
+        // only allow manual revalidate for fallback: true/blocking
+        // or for prerendered fallback: false paths
+        if (isManualRevalidate && (fallbackMode !== false || hadCache)) {
           fallbackMode = 'blocking'
         }
 
@@ -1457,6 +1473,9 @@ export default abstract class Server {
               ? result.revalidate
               : /* default to minimum revalidate (this should be an invariant) */ 1,
         }
+      },
+      {
+        isManualRevalidate,
       }
     )
 
