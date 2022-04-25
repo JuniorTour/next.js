@@ -903,7 +903,7 @@ function doRender(input: RenderRouteInfo): Promise<any> {
       if (!currentHrefs.has(href)) {
         const styleTag = document.createElement('style')
         styleTag.setAttribute('data-n-href', href)
-        styleTag.setAttribute('media', 'x')
+        // styleTag.setAttribute('media', 'x')
 
         if (nonce) {
           styleTag.setAttribute('nonce', nonce)
@@ -941,7 +941,7 @@ function doRender(input: RenderRouteInfo): Promise<any> {
         if (desiredHrefs.has(currentHrefs[idx])) {
           currentStyleTags[idx].removeAttribute('media')
         } else {
-          currentStyleTags[idx].setAttribute('media', 'x')
+          // currentStyleTags[idx].setAttribute('media', 'x')
         }
       }
 
